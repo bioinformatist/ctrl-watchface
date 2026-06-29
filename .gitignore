@@ -1,0 +1,6 @@
+bin/
+.direnv/
+.DS_Store
+*.prg
+*.iq
+*.debug.xml

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<iq:manifest xmlns:iq="http://www.garmin.com/xml/connectiq" version="3">
+  <iq:application
+    id="dcdc69b9829b4b9b8761874fe1626d7c"
+    type="watchface"
+    name="@Strings.AppName"
+    entry="GravitasMasseApp"
+    launcherIcon="@Drawables.LauncherIcon"
+    minApiLevel="5.2.0">
+    <iq:products>
+      <iq:product id="fenix7"/>
+    </iq:products>
+    <iq:permissions/>
+    <iq:languages>
+      <iq:language>eng</iq:language>
+    </iq:languages>
+  </iq:application>
+</iq:manifest>

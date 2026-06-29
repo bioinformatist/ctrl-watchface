@@ -1,0 +1,19 @@
+<drawables>
+  <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+  <bitmap id="IkunFrame00" filename="images/ikun_00.png" />
+  <bitmap id="IkunFrame01" filename="images/ikun_01.png" />
+  <bitmap id="IkunFrame02" filename="images/ikun_02.png" />
+  <bitmap id="IkunFrame03" filename="images/ikun_03.png" />
+  <bitmap id="IkunFrame04" filename="images/ikun_04.png" />
+  <bitmap id="IkunFrame05" filename="images/ikun_05.png" />
+  <bitmap id="IkunFrame06" filename="images/ikun_06.png" />
+  <bitmap id="IkunFrame07" filename="images/ikun_07.png" />
+  <bitmap id="IkunFrame08" filename="images/ikun_08.png" />
+  <bitmap id="IkunFrame09" filename="images/ikun_09.png" />
+  <bitmap id="IkunFrame10" filename="images/ikun_10.png" />
+  <bitmap id="IkunFrame11" filename="images/ikun_11.png" />
+  <bitmap id="IkunFrame12" filename="images/ikun_12.png" />
+  <bitmap id="IkunFrame13" filename="images/ikun_13.png" />
+  <bitmap id="IkunFrame14" filename="images/ikun_14.png" />
+  <bitmap id="IkunFrame15" filename="images/ikun_15.png" />
+</drawables>
