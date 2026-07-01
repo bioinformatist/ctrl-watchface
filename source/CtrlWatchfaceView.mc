@@ -6,7 +6,7 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.WatchUi;
 
-class GravitasMasseView extends WatchUi.WatchFace {
+class CtrlWatchfaceView extends WatchUi.WatchFace {
     const WIDTH = 260;
     const HEIGHT = 260;
     const CENTER_X = 130;
@@ -15,6 +15,10 @@ class GravitasMasseView extends WatchUi.WatchFace {
     const IMAGE_WIDTH = 116;
     const IMAGE_HEIGHT = 106;
     const FRAME_COUNT = 16;
+    const ICON_HEART = 0;
+    const ICON_STEPS = 1;
+    const ICON_ENERGY = 2;
+    const ICON_BATTERY = 3;
 
     var _awake = true;
     var _frameIndex = 0;
@@ -26,6 +30,7 @@ class GravitasMasseView extends WatchUi.WatchFace {
     var _lastMetricMinute = -1;
     var _heartRateId;
     var _bodyBatteryId;
+    var _frames = null;
 
     var _frameResources = [
         Rez.Drawables.IkunFrame00,
@@ -53,6 +58,10 @@ class GravitasMasseView extends WatchUi.WatchFace {
         registerComplications();
     }
 
+    function onLayout(dc) {
+        loadFrameResources();
+    }
+
     function onUpdate(dc) {
         var clock = System.getClockTime();
 
@@ -75,7 +84,7 @@ class GravitasMasseView extends WatchUi.WatchFace {
         WatchUi.requestUpdate();
     }
 
-    function onComplicationChanged(id) {
+    function onComplicationChanged(id as Complications.Id) as Void {
         refreshComplicationValues();
         WatchUi.requestUpdate();
     }
@@ -107,7 +116,7 @@ class GravitasMasseView extends WatchUi.WatchFace {
         _lastMetricMinute = clock.min;
     }
 
-    function readComplication(id) {
+    function readComplication(id as Complications.Id) {
         try {
             var complication = Complications.getComplication(id);
             if (complication != null && complication.value != null) {
@@ -119,45 +128,104 @@ class GravitasMasseView extends WatchUi.WatchFace {
         return "--";
     }
 
+    function loadFrameResources() {
+        if (_frames != null) {
+            return;
+        }
+
+        _frames = [];
+        for (var i = 0; i < FRAME_COUNT; i++) {
+            _frames.add(WatchUi.loadResource(_frameResources[i]));
+        }
+    }
+
     function drawFace(dc, clock) {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
-        drawTime(dc, clock);
-        drawIkun(dc);
-        drawMetrics(dc);
+        var originX = (dc.getWidth() - WIDTH) / 2;
+        var originY = (dc.getHeight() - HEIGHT) / 2;
+
+        drawTime(dc, clock, originX, originY);
+        drawIkun(dc, originX, originY);
+        drawMetrics(dc, originX, originY);
     }
 
-    function drawTime(dc, clock) {
+    function drawTime(dc, clock, originX, originY) {
         var timeText = clock.hour.format("%02d") + ":" + clock.min.format("%02d");
         var today = Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         var dateText = today.month.format("%02d") + "/" + today.day.format("%02d");
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(CENTER_X, 18, Graphics.FONT_LARGE, timeText, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(CENTER_X, 52, Graphics.FONT_XTINY, dateText, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(originX + CENTER_X, originY + 18, Graphics.FONT_LARGE, timeText, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(originX + CENTER_X, originY + 52, Graphics.FONT_XTINY, dateText, Graphics.TEXT_JUSTIFY_CENTER);
     }
 
-    function drawIkun(dc) {
-        var frame = WatchUi.loadResource(_frameResources[_frameIndex]);
-        dc.drawBitmap(IMAGE_X, IMAGE_Y, frame);
+    function drawIkun(dc, originX, originY) {
+        loadFrameResources();
+        dc.drawBitmap(originX + IMAGE_X, originY + IMAGE_Y, _frames[_frameIndex]);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(CENTER_X, IMAGE_Y + IMAGE_HEIGHT + 8, 3);
+        dc.drawCircle(originX + CENTER_X, originY + IMAGE_Y + IMAGE_HEIGHT + 8, 3);
     }
 
-    function drawMetrics(dc) {
-        drawMetric(dc, 51, 104, "HR", _heartRate);
-        drawMetric(dc, 209, 104, "STP", _steps);
-        drawMetric(dc, 52, 211, "BB", _bodyBattery);
-        drawMetric(dc, 208, 211, "BAT", _battery);
+    function drawMetrics(dc, originX, originY) {
+        drawMetric(dc, originX + 56, originY + 104, ICON_HEART, _heartRate);
+        drawMetric(dc, originX + 204, originY + 104, ICON_STEPS, _steps);
+        drawMetric(dc, originX + 68, originY + 197, ICON_ENERGY, _bodyBattery);
+        drawMetric(dc, originX + 192, originY + 197, ICON_BATTERY, _battery);
     }
 
-    function drawMetric(dc, x, y, label, value) {
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(x, y, 25);
+    function drawMetric(dc, x, y, icon, value) {
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        drawMetricIcon(dc, x, y - 11, icon);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(x, y - 15, Graphics.FONT_XTINY, label, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(x, y + 1, Graphics.FONT_TINY, value, Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(x, y + 2, Graphics.FONT_TINY, value, Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    function drawMetricIcon(dc, x, y, icon) {
+        if (icon == ICON_HEART) {
+            drawHeartIcon(dc, x, y);
+        } else if (icon == ICON_STEPS) {
+            drawStepsIcon(dc, x, y);
+        } else if (icon == ICON_ENERGY) {
+            drawEnergyIcon(dc, x, y);
+        } else {
+            drawBatteryIcon(dc, x, y);
+        }
+    }
+
+    function drawHeartIcon(dc, x, y) {
+        dc.fillCircle(x - 3, y - 2, 3);
+        dc.fillCircle(x + 3, y - 2, 3);
+        dc.fillPolygon([[x - 7, y - 1], [x + 7, y - 1], [x, y + 7]]);
+    }
+
+    function drawStepsIcon(dc, x, y) {
+        drawFootIcon(dc, x - 5, y + 1);
+        drawFootIcon(dc, x + 5, y - 2);
+    }
+
+    function drawEnergyIcon(dc, x, y) {
+        dc.drawCircle(x - 2, y, 5);
+        dc.fillCircle(x - 2, y, 2);
+        dc.drawLine(x - 9, y, x - 7, y);
+        dc.drawLine(x - 6, y - 6, x - 5, y - 4);
+        dc.drawLine(x - 6, y + 6, x - 5, y + 4);
+        dc.fillPolygon([[x + 4, y - 7], [x + 8, y - 7], [x + 6, y - 1],
+            [x + 9, y - 1], [x + 3, y + 8], [x + 5, y + 2], [x + 2, y + 2]]);
+    }
+
+    function drawBatteryIcon(dc, x, y) {
+        dc.drawRectangle(x - 8, y - 5, 14, 10);
+        dc.fillRectangle(x + 7, y - 2, 2, 4);
+        dc.fillRectangle(x - 5, y - 2, 7, 4);
+    }
+
+    function drawFootIcon(dc, x, y) {
+        dc.fillCircle(x, y + 2, 3);
+        dc.fillCircle(x - 2, y - 3, 1);
+        dc.fillCircle(x, y - 4, 1);
+        dc.fillCircle(x + 2, y - 3, 1);
     }
 
     function readSteps() {
@@ -175,7 +243,7 @@ class GravitasMasseView extends WatchUi.WatchFace {
     function readBattery() {
         try {
             var stats = System.getSystemStats();
-            return stats.battery.format("%d") + "%";
+            return stats.battery.format("%d");
         } catch (ex) {
         }
 

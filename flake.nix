@@ -1,46 +1,137 @@
 {
-  description = "Repo-local development shell for the Gravitas Masse Garmin watch face";
+  description = "Repo-local development shell for the ctrl-watchface Garmin watch face";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-ciq.url = "github:NixOS/nixpkgs/nixos-23.11";
+  };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, nixpkgs-ciq, ... }:
     let
       systems = [
         "x86_64-linux"
-        "aarch64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+      mkPkgs =
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      mkCiqPkgs =
+        system:
+        import nixpkgs-ciq {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      mkConnectiq =
+        system:
+        let
+          pkgsCiq = mkCiqPkgs system;
+        in
+        pkgsCiq.callPackage ./nix/connectiq.nix {
+          adwaita-icon-theme = pkgsCiq.gnome.adwaita-icon-theme;
+        };
+      mkConnectiqSimulator =
+        system:
+        let
+          pkgs = mkPkgs system;
+          connectiq = mkConnectiq system;
+        in
+        pkgs.writeShellApplication {
+          name = "connectiq-simulator";
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.steam-run
+          ];
+          text = ''
+            if [ -z "''${CTRL_WATCHFACE_GARMIN_HOME:-}" ]; then
+              repo_root="$PWD"
+              while [ "$repo_root" != "/" ] && [ ! -f "$repo_root/scripts/connectiq-env.sh" ]; do
+                repo_root="$(dirname "$repo_root")"
+              done
+
+              if [ -f "$repo_root/scripts/connectiq-env.sh" ]; then
+                export CTRL_WATCHFACE_GARMIN_HOME="$repo_root/.garmin-home"
+              fi
+            fi
+
+            if [ -n "''${CTRL_WATCHFACE_GARMIN_HOME:-}" ]; then
+              mkdir -p "$CTRL_WATCHFACE_GARMIN_HOME"
+              export HOME="$CTRL_WATCHFACE_GARMIN_HOME"
+              export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$CTRL_WATCHFACE_GARMIN_HOME/.cache}"
+              mkdir -p "$XDG_CACHE_HOME"
+            fi
+
+            exec steam-run ${connectiq}/opt/connectiq/bin/connectiq "$@"
+          '';
+        };
     in
     {
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = mkPkgs system;
+          connectiq = mkConnectiq system;
+          connectiqSimulator = mkConnectiqSimulator system;
+        in
+        {
+          inherit connectiq;
+          connectiq-simulator = connectiqSimulator;
+          connect-iq-sdk-manager-cli = pkgs.callPackage ./nix/connect-iq-sdk-manager-cli.nix { };
+          default = connectiq;
+        }
+      );
+
       devShells = forAllSystems (
         system:
         let
-          pkgs = import nixpkgs { inherit system; };
+          pkgs = mkPkgs system;
+          connectiq = mkConnectiq system;
+          connectiqSimulator = mkConnectiqSimulator system;
+          sdkManager = pkgs.callPackage ./nix/connect-iq-sdk-manager-cli.nix { };
         in
         {
           default = pkgs.mkShell {
-            packages = with pkgs; [
-              bashInteractive
-              coreutils
-              findutils
-              gnugrep
-              gnused
-              imagemagick
-              jdk17_headless
-              libxml2
+            packages = [
+              connectiq
+              connectiqSimulator
+              sdkManager
+              pkgs.bashInteractive
+              pkgs.coreutils
+              pkgs.findutils
+              pkgs.gnugrep
+              pkgs.gnused
+              pkgs.imagemagick
+              pkgs.jdk17
+              pkgs.libmtp
+              pkgs.libxml2
+              pkgs.openssl
             ];
 
             shellHook = ''
-              if [ -n "''${CONNECTIQ_SDK_HOME:-}" ] && [ -x "$CONNECTIQ_SDK_HOME/bin/monkeyc" ]; then
-                export PATH="$CONNECTIQ_SDK_HOME/bin:$PATH"
-              else
-                echo "CONNECTIQ_SDK_HOME is not set to a Garmin Connect IQ SDK with bin/monkeyc."
-                echo "Install the SDK with Garmin SDK Manager, then export CONNECTIQ_SDK_HOME=/path/to/connectiq-sdk."
+              repo_root="$PWD"
+              while [ "$repo_root" != "/" ] && [ ! -f "$repo_root/scripts/connectiq-env.sh" ]; do
+                repo_root="$(dirname "$repo_root")"
+              done
+
+              if [ -f "$repo_root/scripts/connectiq-env.sh" ]; then
+                . "$repo_root/scripts/connectiq-env.sh"
+                connectiq_load_env "$repo_root"
               fi
 
-              if [ -z "''${CONNECTIQ_DEVELOPER_KEY:-}" ]; then
-                echo "CONNECTIQ_DEVELOPER_KEY is not set; builds need a local Garmin developer key."
+              export CIQ_HOME="${connectiq}/opt/connectiq"
+              export CONNECTIQ_SDK_HOME="$CIQ_HOME"
+
+              echo "Connect IQ SDK: ${connectiq.version}"
+              echo "Garmin home: $repo_root/.garmin-home"
+
+              if [ -n "''${CONNECTIQ_DEVELOPER_KEY:-}" ] && [ -f "$CONNECTIQ_DEVELOPER_KEY" ]; then
+                echo "Developer key: $CONNECTIQ_DEVELOPER_KEY"
+              else
+                echo "Developer key not found. Generate a repo-local key with:"
+                echo "  scripts/generate-key.sh"
               fi
             '';
           };

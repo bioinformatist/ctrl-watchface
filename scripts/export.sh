@@ -10,7 +10,7 @@ connectiq_enter_repo_home "$repo_root"
 cd "$repo_root"
 
 if ! command -v monkeyc >/dev/null 2>&1; then
-  echo "monkeyc was not found. Enter nix develop, then rerun scripts/build.sh." >&2
+  echo "monkeyc was not found. Enter nix develop, then rerun scripts/export.sh." >&2
   exit 1
 fi
 
@@ -22,10 +22,11 @@ fi
 mkdir -p bin
 monkeyc \
     -f monkey.jungle \
-    -d fenix7x \
-    -o bin/ctrl-watchface.prg \
+    -e \
+    -r \
+    -o bin/ctrl-watchface.iq \
     -y "$CONNECTIQ_DEVELOPER_KEY" || {
   status=$?
-  echo "Build failed. If monkeyc reports an invalid device id, run scripts/ciq-setup.sh and rerun through a fresh nix develop or direnv shell." >&2
+  echo "Export failed. Run scripts/ciq-setup.sh and rerun through a fresh nix develop or direnv shell." >&2
   exit "$status"
 }
