@@ -20,28 +20,10 @@ connectiq_load_env() {
 
 connectiq_enter_repo_home() {
   local repo_root="$1"
-  local need_java_home=0
 
   connectiq_load_env "$repo_root"
   mkdir -p "$CTRL_WATCHFACE_GARMIN_HOME"
   export HOME="$CTRL_WATCHFACE_GARMIN_HOME"
   export XDG_CACHE_HOME="$CTRL_WATCHFACE_GARMIN_HOME/.cache"
   mkdir -p "$XDG_CACHE_HOME"
-  unset CTRL_WATCHFACE_CONNECTIQ_JAVA_HOME_FALLBACK
-
-  if [ -n "${CONNECTIQ_SDK_HOME:-}" ] &&
-    [ -f "$CONNECTIQ_SDK_HOME/bin/monkeyc" ] &&
-    ! grep -q -- "-Duser.home" "$CONNECTIQ_SDK_HOME/bin/monkeyc"; then
-    need_java_home=1
-  elif [ -z "${CONNECTIQ_SDK_HOME:-}" ] && command -v monkeyc >/dev/null 2>&1; then
-    need_java_home=1
-  fi
-
-  if [ "$need_java_home" -eq 1 ]; then
-    case " ${JAVA_TOOL_OPTIONS:-} " in
-      *" -Duser.home="*) ;;
-      *) export JAVA_TOOL_OPTIONS="-Duser.home=$HOME ${JAVA_TOOL_OPTIONS:-}" ;;
-    esac
-    export CTRL_WATCHFACE_CONNECTIQ_JAVA_HOME_FALLBACK=1
-  fi
 }

@@ -222,7 +222,7 @@ direnv reload
 nix develop -c scripts/sim.sh
 ```
 
-If `scripts/sim.sh` reports `Unable to connect to simulator`, read the simulator log printed by the script. The default log path is `/tmp/ctrl-watchface-connectiq.log`. If the output also mentions the compatibility Java home fallback, refresh the development shell before debugging the watch face:
+If `scripts/sim.sh` reports `Unable to connect to simulator`, read the simulator log printed by the script. The default log path is `/tmp/ctrl-watchface-connectiq.log`. Refresh the development shell before debugging the watch face:
 
 ```sh
 direnv reload
