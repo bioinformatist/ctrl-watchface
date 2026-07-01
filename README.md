@@ -6,7 +6,7 @@
 iKun-themed Garmin fēnix 7X Connect IQ watch face with a monochrome wake-only CTRL dance animation and glanceable metrics.
 
 <p align="center">
-  <img src="docs/preview.gif" alt="CTRL animation preview" width="232">
+  <img src="docs/preview.gif" alt="CTRL animation preview" width="280">
 </p>
 
 The animation is intentionally committed as fixed PNG frames under [`resources/drawables/images/`](resources/drawables/images/). The original GIF is not needed to build or maintain this watch face.
