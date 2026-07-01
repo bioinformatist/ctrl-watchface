@@ -1,5 +1,11 @@
 bin/
+result
+result-*
 .direnv/
+.connectiq-sdk
+.connectiq-sdk-manager/
+.garmin-home/
+.secrets
 .DS_Store
 *.prg
 *.iq

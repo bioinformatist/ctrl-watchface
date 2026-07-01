@@ -8,9 +8,11 @@
     launcherIcon="@Drawables.LauncherIcon"
     minApiLevel="5.2.0">
     <iq:products>
-      <iq:product id="fenix7"/>
+      <iq:product id="fenix7x"/>
     </iq:products>
-    <iq:permissions/>
+    <iq:permissions>
+      <iq:uses-permission id="ComplicationSubscriber"/>
+    </iq:permissions>
     <iq:languages>
       <iq:language>eng</iq:language>
     </iq:languages>
