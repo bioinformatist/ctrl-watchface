@@ -1,5 +1,5 @@
 {
-  description = "Repo-local development shell for the Gravitas Masse Garmin watch face";
+  description = "Repo-local development shell for the ctrl-watchface Garmin watch face";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -46,21 +46,21 @@
             pkgs.steam-run
           ];
           text = ''
-            if [ -z "''${GRAVITAS_GARMIN_HOME:-}" ]; then
+            if [ -z "''${CTRL_WATCHFACE_GARMIN_HOME:-}" ]; then
               repo_root="$PWD"
               while [ "$repo_root" != "/" ] && [ ! -f "$repo_root/scripts/connectiq-env.sh" ]; do
                 repo_root="$(dirname "$repo_root")"
               done
 
               if [ -f "$repo_root/scripts/connectiq-env.sh" ]; then
-                export GRAVITAS_GARMIN_HOME="$repo_root/.garmin-home"
+                export CTRL_WATCHFACE_GARMIN_HOME="$repo_root/.garmin-home"
               fi
             fi
 
-            if [ -n "''${GRAVITAS_GARMIN_HOME:-}" ]; then
-              mkdir -p "$GRAVITAS_GARMIN_HOME"
-              export HOME="$GRAVITAS_GARMIN_HOME"
-              export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$GRAVITAS_GARMIN_HOME/.cache}"
+            if [ -n "''${CTRL_WATCHFACE_GARMIN_HOME:-}" ]; then
+              mkdir -p "$CTRL_WATCHFACE_GARMIN_HOME"
+              export HOME="$CTRL_WATCHFACE_GARMIN_HOME"
+              export XDG_CACHE_HOME="''${XDG_CACHE_HOME:-$CTRL_WATCHFACE_GARMIN_HOME/.cache}"
               mkdir -p "$XDG_CACHE_HOME"
             fi
 

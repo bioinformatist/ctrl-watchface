@@ -4,7 +4,7 @@
     id="dcdc69b9829b4b9b8761874fe1626d7c"
     type="watchface"
     name="@Strings.AppName"
-    entry="GravitasMasseApp"
+    entry="CtrlWatchfaceApp"
     launcherIcon="@Drawables.LauncherIcon"
     minApiLevel="5.2.0">
     <iq:products>

@@ -6,7 +6,7 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.WatchUi;
 
-class GravitasMasseView extends WatchUi.WatchFace {
+class CtrlWatchfaceView extends WatchUi.WatchFace {
     const WIDTH = 260;
     const HEIGHT = 260;
     const CENTER_X = 130;

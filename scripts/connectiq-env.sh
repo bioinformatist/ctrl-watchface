@@ -11,7 +11,7 @@ connectiq_load_env() {
   local local_key="$repo_root/.secrets/developer_key.der"
   local garmin_home="$repo_root/.garmin-home"
 
-  export GRAVITAS_GARMIN_HOME="$garmin_home"
+  export CTRL_WATCHFACE_GARMIN_HOME="$garmin_home"
 
   if [ -f "$local_key" ] && { [ -z "${CONNECTIQ_DEVELOPER_KEY:-}" ] || [ ! -f "$CONNECTIQ_DEVELOPER_KEY" ]; }; then
     export CONNECTIQ_DEVELOPER_KEY="$local_key"
@@ -23,11 +23,11 @@ connectiq_enter_repo_home() {
   local need_java_home=0
 
   connectiq_load_env "$repo_root"
-  mkdir -p "$GRAVITAS_GARMIN_HOME"
-  export HOME="$GRAVITAS_GARMIN_HOME"
-  export XDG_CACHE_HOME="$GRAVITAS_GARMIN_HOME/.cache"
+  mkdir -p "$CTRL_WATCHFACE_GARMIN_HOME"
+  export HOME="$CTRL_WATCHFACE_GARMIN_HOME"
+  export XDG_CACHE_HOME="$CTRL_WATCHFACE_GARMIN_HOME/.cache"
   mkdir -p "$XDG_CACHE_HOME"
-  unset GRAVITAS_CONNECTIQ_JAVA_HOME_FALLBACK
+  unset CTRL_WATCHFACE_CONNECTIQ_JAVA_HOME_FALLBACK
 
   if [ -n "${CONNECTIQ_SDK_HOME:-}" ] &&
     [ -f "$CONNECTIQ_SDK_HOME/bin/monkeyc" ] &&
@@ -42,6 +42,6 @@ connectiq_enter_repo_home() {
       *" -Duser.home="*) ;;
       *) export JAVA_TOOL_OPTIONS="-Duser.home=$HOME ${JAVA_TOOL_OPTIONS:-}" ;;
     esac
-    export GRAVITAS_CONNECTIQ_JAVA_HOME_FALLBACK=1
+    export CTRL_WATCHFACE_CONNECTIQ_JAVA_HOME_FALLBACK=1
   fi
 }

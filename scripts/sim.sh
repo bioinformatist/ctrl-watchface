@@ -26,12 +26,12 @@ if ! command -v monkeydo >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ "${GRAVITAS_CONNECTIQ_JAVA_HOME_FALLBACK:-}" = "1" ]; then
+if [ "${CTRL_WATCHFACE_CONNECTIQ_JAVA_HOME_FALLBACK:-}" = "1" ]; then
   echo "Using compatibility Java home fallback. If the simulator fails, refresh direnv or run through nix develop -c scripts/sim.sh." >&2
 fi
 
-sim_log="${TMPDIR:-/tmp}/gravitas-masse-connectiq.log"
-monkeydo_log="${TMPDIR:-/tmp}/gravitas-masse-monkeydo.log"
+sim_log="${TMPDIR:-/tmp}/ctrl-watchface-connectiq.log"
+monkeydo_log="${TMPDIR:-/tmp}/ctrl-watchface-monkeydo.log"
 rm -f "$monkeydo_log"
 sim_pid=""
 
@@ -58,7 +58,7 @@ for attempt in $(seq 1 20); do
     exit "$status"
   fi
 
-  if monkeydo bin/GravitasMasse.prg fenix7x 2>&1 | tee "$monkeydo_log"; then
+  if monkeydo bin/ctrl-watchface.prg fenix7x 2>&1 | tee "$monkeydo_log"; then
     rm -f "$monkeydo_log"
     exit 0
   fi

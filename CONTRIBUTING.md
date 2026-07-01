@@ -28,13 +28,15 @@ scripts/
   ciq-setup.sh
   generate-key.sh
   build.sh
+  export.sh
   sim.sh
 .garmin-home/
   .Garmin/ConnectIQ/
 .secrets/
   developer_key.der
 bin/
-  GravitasMasse.prg
+  ctrl-watchface.prg
+  ctrl-watchface.iq
 ```
 
 `nix/connectiq.nix` packages Garmin's Connect IQ SDK as an unfree, pinned binary dependency. The SDK itself stays in the Nix store, not in the repository.
@@ -89,6 +91,12 @@ Run it in the Garmin simulator:
 scripts/sim.sh
 ```
 
+Export the Store package:
+
+```sh
+scripts/export.sh
+```
+
 `scripts/sim.sh` starts the GUI simulator through `connectiq-simulator`, then loads the built `.prg` with `monkeydo`. After `monkeydo` connects, it keeps the terminal attached to the simulator until the simulator exits or the command is interrupted.
 
 For a non-interactive smoke test, wrap the command with `timeout`, for example:
@@ -128,9 +136,9 @@ nix develop -c sh -c 'sudo "$(command -v mtp-folders)" | grep -F "Apps"'
 Side-load the debug build. `mtp-sendfile` uses the local file basename as the remote filename, so create a temporary 8.3-style name first and send it to the existing `GARMIN/Apps` folder:
 
 ```sh
-cp bin/GravitasMasse.prg /tmp/GRVMASSE.PRG
-nix develop -c sh -c 'sudo "$(command -v mtp-sendfile)" /tmp/GRVMASSE.PRG /GARMIN/Apps'
-rm -f /tmp/GRVMASSE.PRG
+cp bin/ctrl-watchface.prg /tmp/CTRLFACE.PRG
+nix develop -c sh -c 'sudo "$(command -v mtp-sendfile)" /tmp/CTRLFACE.PRG /GARMIN/Apps'
+rm -f /tmp/CTRLFACE.PRG
 ```
 
 Check that the file landed in the Apps folder:
@@ -147,13 +155,23 @@ nix develop -c sh -c 'sudo "$(command -v mtp-files)"' |
 
 The `16777229` parent ID is the observed `GARMIN/Apps` folder ID on the test fēnix 7X. If a different watch or firmware reports a different ID, use `mtp-folders` to find the current `Apps` folder ID before filtering.
 
-After side-loading, disconnect USB and let the watch leave MTP mode. If `Gravitas Masse` does not appear in the watch-face picker immediately, wait for the watch to process the new file or restart the watch.
+After side-loading, disconnect USB and let the watch leave MTP mode. If `CTRL Watchface` does not appear in the watch-face picker immediately, wait for the watch to process the new file or restart the watch.
 
 Do not document this side-loading path as a user installation method in [`README.md`](README.md). It bypasses the Connect IQ Store approval and update flow.
 
 ## Store Publication
 
 Garmin Store publication uses an `.iq` package, not the debug `.prg` copied by MTP. Garmin's published flow is to export the project, upload the `.iq` package, add the store listing, and wait for review before it appears in the Connect IQ Store.
+
+Build the release package with:
+
+```sh
+nix develop -c scripts/export.sh
+```
+
+The package is written to `bin/ctrl-watchface.iq`.
+
+The first release intentionally supports only `fenix7x`. Add more products only after validating the layout, screenshots, low-power behavior, and real or simulated device behavior for each target.
 
 Before preparing a Store package, check:
 
@@ -171,7 +189,7 @@ Use the shortest loop that matches the problem:
 - For compile errors, run `scripts/build.sh`.
 - For layout, frame loading, and animation behavior, run `scripts/sim.sh`.
 - For quick state tracing, add temporary `System.println()` calls and run in the simulator.
-- For breakpoints and local variables, use Garmin's Connect IQ Visual Studio Code debugger or the SDK `mdd` command-line debugger against the generated `bin/GravitasMasse.prg` and `bin/GravitasMasse.prg.debug.xml`.
+- For breakpoints and local variables, use Garmin's Connect IQ Visual Studio Code debugger or the SDK `mdd` command-line debugger against the generated `bin/ctrl-watchface.prg` and `bin/ctrl-watchface.prg.debug.xml`.
 - For real low-power mode, wake behavior, complications, and on-device crashes, test on the fēnix 7X.
 
 The repo-local SDK documentation is available inside the development shell at `$CONNECTIQ_SDK_HOME/doc/index.html`. Garmin's debugging guide is under `Core Topics -> Testing and Debugging`.
@@ -204,7 +222,7 @@ direnv reload
 nix develop -c scripts/sim.sh
 ```
 
-If `scripts/sim.sh` reports `Unable to connect to simulator`, read the simulator log printed by the script. The default log path is `/tmp/gravitas-masse-connectiq.log`. If the output also mentions the compatibility Java home fallback, refresh the development shell before debugging the watch face:
+If `scripts/sim.sh` reports `Unable to connect to simulator`, read the simulator log printed by the script. The default log path is `/tmp/ctrl-watchface-connectiq.log`. If the output also mentions the compatibility Java home fallback, refresh the development shell before debugging the watch face:
 
 ```sh
 direnv reload
