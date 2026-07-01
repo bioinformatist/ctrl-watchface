@@ -15,7 +15,6 @@ class GravitasMasseView extends WatchUi.WatchFace {
     const IMAGE_WIDTH = 116;
     const IMAGE_HEIGHT = 106;
     const FRAME_COUNT = 16;
-    const METRIC_RADIUS = 23;
     const ICON_HEART = 0;
     const ICON_STEPS = 1;
     const ICON_ENERGY = 2;
@@ -177,8 +176,6 @@ class GravitasMasseView extends WatchUi.WatchFace {
     }
 
     function drawMetric(dc, x, y, icon, value) {
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawCircle(x, y, METRIC_RADIUS);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         drawMetricIcon(dc, x, y - 11, icon);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
