@@ -215,3 +215,5 @@ nix develop -c scripts/sim.sh
 ## Project Scope
 
 This repository only targets a Connect IQ `watchface` for `fenix7x`. Do not add app, widget, glance, data field, or background-service behavior unless the product scope changes explicitly.
+
+The watch face does not request sensor permissions. Heart rate and Body Battery are read through Garmin complications when available and render as `--` otherwise.
