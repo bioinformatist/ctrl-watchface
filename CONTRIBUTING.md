@@ -149,7 +149,7 @@ The `16777229` parent ID is the observed `GARMIN/Apps` folder ID on the test fē
 
 After side-loading, disconnect USB and let the watch leave MTP mode. If `Gravitas Masse` does not appear in the watch-face picker immediately, wait for the watch to process the new file or restart the watch.
 
-Do not document this side-loading path as a user installation method in `README.md`. It bypasses the Connect IQ Store approval and update flow.
+Do not document this side-loading path as a user installation method in [`README.md`](README.md). It bypasses the Connect IQ Store approval and update flow.
 
 ## Store Publication
 

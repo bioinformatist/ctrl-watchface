@@ -12,4 +12,4 @@ NES-style decomposition was considered, but these frames do not have a stable ba
 
 ## Development
 
-See `CONTRIBUTING.md` for the repo-local Nix development shell, Connect IQ setup, simulator workflow, physical-device debugging, and Store publication notes.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the repo-local Nix development shell, Connect IQ setup, simulator workflow, physical-device debugging, and Store publication notes.
